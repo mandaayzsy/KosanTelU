@@ -46,13 +46,19 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                 )
             }
         }
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.padding(innerPadding)
+    )  { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
         ) {
-            items(kosans) { kosan ->
-                KosanItem(kosan) {
-                    navController.navigate("detailScreen/${kosan.id}")
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                items(kosans) { kosan ->
+                    KosanItem(kosan) {
+                        navController.navigate("detailScreen/${kosan.id}")
+                    }
                 }
             }
         }
