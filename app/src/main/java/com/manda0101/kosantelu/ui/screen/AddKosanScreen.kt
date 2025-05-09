@@ -1,5 +1,6 @@
 package com.manda0101.kosantelu.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -13,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.manda0101.kosantelu.model.Kosan
 import com.manda0101.kosantelu.ui.viewmodel.MainViewModel
+
+// File: AddKosanScreen.kt
 
 @Composable
 fun AddKosanScreen(viewModel: MainViewModel, navController: NavController) {
@@ -45,7 +48,12 @@ fun AddKosanScreen(viewModel: MainViewModel, navController: NavController) {
         )
 
         Button(onClick = {
-            // Tidak perlu memasukkan id karena auto-generate
+            // Cek validitas input
+            if (kosanName.value.isBlank() || kosanAlamat.value.isBlank() || kosanHarga.value.isBlank()) {
+                Toast.makeText(navController.context, "Semua kolom harus diisi", Toast.LENGTH_SHORT).show()
+                return@Button
+            }
+
             val newKosan = Kosan(
                 nama = kosanName.value,
                 alamat = kosanAlamat.value,

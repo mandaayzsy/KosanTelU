@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.first
 
 // Pastikan hanya satu deklarasi `dataStore`
 val Context.dataStore by preferencesDataStore(name = "settings")
+val THEME_KEY = stringPreferencesKey("theme")
 
 // Fungsi untuk menyimpan tema yang dipilih
 @Composable
@@ -30,16 +31,17 @@ fun SaveThemePreference(theme: String) {
 
 // Fungsi untuk mendapatkan preferensi tema
 @Composable
-fun getThemePreference(): String {
+fun getThemePreference(): Boolean {
     val context = LocalContext.current
-    var theme by remember { mutableStateOf("light") }
+    var darkTheme by remember { mutableStateOf(false) }
 
-    // Menggunakan LaunchedEffect untuk mengambil data
+    // Mengambil preferensi tema dari DataStore
     LaunchedEffect(Unit) {
         val preferences = context.dataStore.data.first()
-        theme = preferences[THEME_KEY] ?: "light"
+        val theme = preferences[THEME_KEY] ?: "light"
+        darkTheme = theme == "dark"
     }
-    return theme
+
+    return darkTheme
 }
 
-val THEME_KEY = stringPreferencesKey("theme")

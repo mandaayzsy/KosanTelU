@@ -6,22 +6,19 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface KosanDao {
+    @Query("SELECT * FROM kosan_table")
+    fun getAllKosans(): Flow<List<Kosan>>
 
     @Insert
     suspend fun insert(kosan: Kosan)
 
-    @Update
-    suspend fun update(kosan: Kosan)
-
     @Delete
     suspend fun delete(kosan: Kosan)
 
-    @Query("UPDATE kosan_table SET deleted = 1 WHERE id = :id")
-    suspend fun markAsDeleted(id: Long)
-
-    @Query("SELECT * FROM kosan_table WHERE deleted = 0 ORDER BY id ASC")
-    fun getAllKosans(): Flow<List<Kosan>>
-
-    @Query("SELECT * FROM kosan_table WHERE id = :id AND deleted = 0")
+    @Query("SELECT * FROM kosan_table WHERE id = :id LIMIT 1")
     fun getKosanById(id: Long): Flow<Kosan>
+
+    @Update
+    suspend fun update(kosan: Kosan)
 }
+

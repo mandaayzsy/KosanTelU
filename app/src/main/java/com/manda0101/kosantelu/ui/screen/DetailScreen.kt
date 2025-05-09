@@ -15,19 +15,14 @@ import androidx.navigation.NavController
 import com.manda0101.kosantelu.model.Kosan
 import com.manda0101.kosantelu.ui.viewmodel.MainViewModel
 
+// File: DetailScreen.kt
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(navController: NavController, kosanId: Long) {
+fun DetailScreen(navController: NavController, kosanId: Long)  {
     val viewModel: MainViewModel = viewModel()
-
-    // Menggunakan collectAsState untuk mengambil data kosan, dengan nilai default Kosan
-    val kosan = viewModel.getKosanById(kosanId).collectAsState(initial = Kosan(0L, "", "", "", "")).value
-
-    // State untuk menyimpan inputan pengguna
-    var kosanName by remember { mutableStateOf(kosan.nama) }
-    var kosanAlamat by remember { mutableStateOf(kosan.alamat) }
-    var kosanHarga by remember { mutableStateOf(kosan.harga) }
-    var kosanFasilitas by remember { mutableStateOf(kosan.fasilitas) }
+    val kosan by viewModel.getKosanById(kosanId).collectAsState(initial = Kosan(0L, "", "", "", ""))
+    var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -39,7 +34,7 @@ fun DetailScreen(navController: NavController, kosanId: Long) {
                     }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = Color(0xFF8B0000), // Merah marun
+                    containerColor = Color(0xFF8B0000),
                     titleContentColor = Color.White
                 ),
             )
@@ -52,62 +47,62 @@ fun DetailScreen(navController: NavController, kosanId: Long) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // TextField untuk Nama Kosan
-            OutlinedTextField(
-                value = kosanName,
-                onValueChange = { kosanName = it },
-                label = { Text("Nama Kosan") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
-            )
+            // Menampilkan detail kosan langsung dari objek kosan
+            Text(text = "Nama Kosan: ${kosan.nama}", style = MaterialTheme.typography.headlineLarge)
+            Text(text = "Alamat: ${kosan.alamat}")
+            Text(text = "Harga: ${kosan.harga}")
+            Text(text = "Fasilitas: ${kosan.fasilitas}")
 
-            // TextField untuk Alamat
-            OutlinedTextField(
-                value = kosanAlamat,
-                onValueChange = { kosanAlamat = it },
-                label = { Text("Alamat") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
-            )
-
-            // TextField untuk Harga
-            OutlinedTextField(
-                value = kosanHarga,
-                onValueChange = { kosanHarga = it },
-                label = { Text("Harga") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
-            )
-
-            // TextField untuk Fasilitas
-            OutlinedTextField(
-                value = kosanFasilitas,
-                onValueChange = { kosanFasilitas = it },
-                label = { Text("Fasilitas") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
-            )
-
-            // Tombol untuk menyimpan perubahan, dengan modifier untuk memastikan tombol di tengah
+            // Tombol untuk edit
             Button(
                 onClick = {
-                    val updatedKosan = kosan.copy(
-                        nama = kosanName,
-                        alamat = kosanAlamat,
-                        harga = kosanHarga,
-                        fasilitas = kosanFasilitas
-                    )
-                    viewModel.update(updatedKosan)
-                    navController.popBackStack()
+                    navController.navigate("editKosan/${kosan.id}")
                 },
                 modifier = Modifier
-                    .fillMaxWidth() // Ensure the button takes full width
-                    .padding(8.dp) // Add some padding
-                    .align(Alignment.CenterHorizontally), // Center the button
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .align(Alignment.CenterHorizontally),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B0000)) // Merah marun
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B0000))
             ) {
-                Text("Simpan Perubahan", color = Color.White)
+                Text("Edit Kosan", color = Color.White)
+            }
+
+            // Tombol untuk memicu tampilan AlertDialog
+            Button(
+                onClick = { showDialog = true }, // Ubah state menjadi true saat tombol diklik
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .align(Alignment.CenterHorizontally),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B0000))
+            ) {
+                Text("Hapus Kosan", color = Color.White)
+            }
+
+            // Menampilkan AlertDialog secara kondisional
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false }, // Ubah state menjadi false saat dialog ditutup
+                    title = { Text("Konfirmasi") },
+                    text = { Text("Apakah Anda yakin ingin menghapus data ini?") },
+                    confirmButton = {
+                        Button(onClick = {
+                            viewModel.delete(kosan)
+                            navController.popBackStack()
+                            showDialog = false // Tutup dialog setelah menghapus
+                        }) {
+                            Text("Hapus")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { showDialog = false }) // Ubah state menjadi false saat tombol batal diklik
+                        {
+                            Text("Batal")
+                        }
+                    }
+                )
             }
         }
     }
