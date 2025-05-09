@@ -1,49 +1,44 @@
 package com.manda0101.kosantelu.ui.screen
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.manda0101.kosantelu.model.Kosan
-import com.manda0101.kosantelu.navigation.Screen
+import com.manda0101.kosantelu.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel) {
+    val kosans by viewModel.allKosans.collectAsState(initial = emptyList())
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = "Kosan Tel-U")
+                title = { Text("Kosan Tel-U") },
+                navigationIcon = {
+                    IconButton(onClick = { /* handle navigation */ }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = Color.Red,  // Set to red color as per your request
+                    containerColor = Color.Red,
                     titleContentColor = Color.White
                 )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    // Navigate to add kosan screen
-                    navController.navigate(Screen.FormBaru.route)
-                },
-                containerColor = Color.Red,
-                contentColor = Color.White
+                onClick = { navController.navigate("addKosan") }
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
@@ -52,34 +47,13 @@ fun MainScreen(navController: NavHostController) {
             }
         }
     ) { innerPadding ->
-        ScreenContent(navController, Modifier.padding(innerPadding))
-    }
-}
-
-@Composable
-fun ScreenContent(navController: NavHostController, modifier: Modifier = Modifier) {
-    val viewModel: MainViewModel = viewModel()
-    val data = viewModel.data
-
-    if (data.isEmpty()) {
-        Column(
-            modifier = modifier.fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("Belum ada kosan tersedia")
-        }
-    } else {
         LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 84.dp)
+            modifier = Modifier.padding(innerPadding)
         ) {
-            items(data) { kosan ->
-                KosanItem(kosan = kosan) {
-                    // Navigate to detail screen
+            items(kosans) { kosan ->
+                KosanItem(kosan) {
                     navController.navigate("detailScreen/${kosan.id}")
                 }
-                HorizontalDivider()
             }
         }
     }
@@ -87,15 +61,18 @@ fun ScreenContent(navController: NavHostController, modifier: Modifier = Modifie
 
 @Composable
 fun KosanItem(kosan: Kosan, onClick: () -> Unit) {
-    Column(
+    Card(
         modifier = Modifier
-            .fillMaxSize()
-            .clickable { onClick() }
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Text(kosan.nama, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(kosan.alamat, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(kosan.harga)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "Nama Kosan: ${kosan.nama}", color = Color.Black)
+            Text(text = "Alamat: ${kosan.alamat}", color = Color.Gray)
+            Text(text = "Harga: ${kosan.harga}", color = Color.Gray)
+            Text(text = "Fasilitas: ${kosan.fasilitas}", color = Color.Gray)
+        }
     }
 }

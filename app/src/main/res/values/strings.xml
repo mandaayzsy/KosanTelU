@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">kosanTelU</string>
+    <string name="list_kosong">Belum ada data</string>
+    <string name="x_diklik">%1$s diklik!</string>
+    <string name="tambah_kosan">Tambah Kosan</string>
+    <string name="belum_bisa">Fitur tambah kos belum tersedia.</string>
+    <string name="judul">Nama Kosan</string>
+    <string name="alamat">Alamat Kosan</string>
+    <string name="harga">Harga</string>
+    <string name="fasilitas">Fasilitas</string>
+    <string name="kembali">Kembali</string>
+    <string name="simpan">Simpan</string>
+    <string name="edit_kosan">Ubah Kosan</string>
+    <string name="konfirmasi_hapus">Apakah Anda yakin ingin menghapus kosan ini?</string>
+    <string name="undo_hapus">Kosan berhasil dihapus. Anda dapat membatalkan penghapusan.</string>
 </resources>

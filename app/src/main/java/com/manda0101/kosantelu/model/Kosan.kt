@@ -1,9 +1,14 @@
 package com.manda0101.kosantelu.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "kosan_table")
 data class Kosan(
-    val id: Long,
-    var nama: String,
-    var alamat: String,
-    var harga: String,
-    var fasilitas: String
+    @PrimaryKey(autoGenerate = true) val id: Long = 0, // Menggunakan Long untuk auto-generate id
+    val nama: String,
+    val alamat: String,
+    val harga: String,
+    val fasilitas: String,
+    val deleted: Int = 0 // Untuk menandai apakah kosan sudah dihapus
 )
