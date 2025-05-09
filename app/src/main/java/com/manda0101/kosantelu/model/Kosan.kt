@@ -2,7 +2,8 @@ package com.manda0101.kosantelu.model
 
 data class Kosan(
     val id: Long,
-    val nama: String,
-    val alamat: String,
-    val harga: String
+    var nama: String,
+    var alamat: String,
+    var harga: String,
+    var fasilitas: String
 )

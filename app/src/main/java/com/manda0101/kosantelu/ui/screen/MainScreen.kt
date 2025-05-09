@@ -12,57 +12,54 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.manda0101.kosantelu.model.Kosan
 import androidx.lifecycle.viewmodel.compose.viewModel
-
-
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.manda0101.kosantelu.model.Kosan
+import com.manda0101.kosantelu.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
-    val context = LocalContext.current
+fun MainScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Kosan Tel-U")
+                    Text(text = "Kosan Tel-U")
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = Color.Red,
-                    titleContentColor = Color.White // Agar teks kontras
+                    containerColor = Color.Red,  // Set to red color as per your request
+                    titleContentColor = Color.White
                 )
             )
-
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    Toast.makeText(context, "Fitur tambah kos belum tersedia", Toast.LENGTH_SHORT).show()
+                    // Navigate to add kosan screen
+                    navController.navigate(Screen.FormBaru.route)
                 },
                 containerColor = Color.Red,
                 contentColor = Color.White
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Tambah Kos"
+                    contentDescription = "Tambah Kosan"
                 )
             }
-
         }
     ) { innerPadding ->
-        ScreenContent(Modifier.padding(innerPadding))
+        ScreenContent(navController, Modifier.padding(innerPadding))
     }
 }
 
 @Composable
-fun ScreenContent(modifier: Modifier = Modifier) {
+fun ScreenContent(navController: NavHostController, modifier: Modifier = Modifier) {
     val viewModel: MainViewModel = viewModel()
     val data = viewModel.data
-    val context = LocalContext.current
 
     if (data.isEmpty()) {
         Column(
@@ -70,16 +67,17 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Belum ada kosan tersedia.")
+            Text("Belum ada kosan tersedia")
         }
     } else {
         LazyColumn(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 84.dp)
         ) {
-            items(data) {
-                KosanItem(kosan = it) {
-                    Toast.makeText(context, "${it.nama} diklik", Toast.LENGTH_SHORT).show()
+            items(data) { kosan ->
+                KosanItem(kosan = kosan) {
+                    // Navigate to detail screen
+                    navController.navigate("detailScreen/${kosan.id}")
                 }
                 HorizontalDivider()
             }
