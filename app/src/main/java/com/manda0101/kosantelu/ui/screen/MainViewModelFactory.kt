@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.manda0101.kosantelu.database.KosanRepository
 import com.manda0101.kosantelu.ui.screen.MainViewModel
 
+@Suppress("UNCHECKED_CAST")
 class MainViewModelFactory(private val repository: KosanRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java))
             return MainViewModel(repository) as T
-        }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
