@@ -3,6 +3,7 @@ package com.manda0101.kosantelu.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.manda0101.kosantelu.database.KosanRepository
+import com.manda0101.kosantelu.ui.screen.MainViewModel
 
 class MainViewModelFactory(private val repository: KosanRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

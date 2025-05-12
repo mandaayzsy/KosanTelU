@@ -11,4 +11,3 @@ data class RecycleBin(
     val harga: String,
     val fasilitas: String
 )
-

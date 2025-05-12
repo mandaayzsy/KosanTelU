@@ -20,15 +20,14 @@ abstract class KosanDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: KosanDatabase? = null
 
-        // Function to get the instance of the database
         fun getInstance(context: Context): KosanDatabase {
-            // Return existing instance or create a new one
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     KosanDatabase::class.java,
                     "kosan_database"
                 )
+                    .fallbackToDestructiveMigration()
                     .addMigrations(MIGRATION_1_2)
                     .build()
                 INSTANCE = instance
@@ -36,19 +35,17 @@ abstract class KosanDatabase : RoomDatabase() {
             }
         }
 
-        // Migration to add the recycle_bin table
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                // Create recycle_bin table in version 2
                 db.execSQL(""" 
-                    CREATE TABLE IF NOT EXISTS `recycle_bin` (
-                        `kosan_id` INTEGER PRIMARY KEY NOT NULL, 
-                        `nama` TEXT, 
-                        `alamat` TEXT, 
-                        `harga` TEXT, 
-                        `fasilitas` TEXT
-                    )
-                """)
+            CREATE TABLE IF NOT EXISTS `recycle_bin` (
+                `kosan_id` INTEGER PRIMARY KEY NOT NULL, 
+                `nama` TEXT NOT NULL, 
+                `alamat` TEXT NOT NULL, 
+                `harga` TEXT NOT NULL, 
+                `fasilitas` TEXT NOT NULL
+            )
+        """)
             }
         }
     }

@@ -5,10 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "kosan_table")
 data class Kosan(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0, // Menggunakan Long untuk auto-generate id
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val nama: String,
     val alamat: String,
     val harga: String,
     val fasilitas: String,
-    val deleted: Int = 0 // Untuk menandai apakah kosan sudah dihapus
+    val deleted: Int = 0
 )

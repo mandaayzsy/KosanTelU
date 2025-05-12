@@ -1,12 +1,13 @@
-package com.manda0101.kosantelu.ui.viewmodel
+package com.manda0101.kosantelu.ui.screen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.manda0101.kosantelu.database.KosanRepository
 import com.manda0101.kosantelu.model.Kosan
 import com.manda0101.kosantelu.model.RecycleBin
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 
 class MainViewModel(private val repository: KosanRepository) : ViewModel() {
 
@@ -34,6 +35,8 @@ class MainViewModel(private val repository: KosanRepository) : ViewModel() {
     }
 
     fun getKosanById(id: Long): Flow<Kosan> {
+        Log.d("MainViewModel", "Fetching Kosan with ID: $id")
         return repository.getKosanById(id)
     }
+
 }

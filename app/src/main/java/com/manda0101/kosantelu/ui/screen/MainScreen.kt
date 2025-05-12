@@ -1,5 +1,6 @@
 package com.manda0101.kosantelu.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,7 +41,6 @@ import androidx.navigation.NavController
 import com.manda0101.kosantelu.R
 import com.manda0101.kosantelu.model.Kosan
 import com.manda0101.kosantelu.model.RecycleBin
-import com.manda0101.kosantelu.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,15 +49,34 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
     val deletedKosans by viewModel.allDeletedKosans.collectAsState(initial = emptyList())
 
     var showDialog by remember { mutableStateOf(false) }
-    var kosanToDelete by remember { mutableStateOf<Kosan?>(null) }
+    var kosanToDelete by remember { mutableStateOf<Any?>(null) }
 
-    // State for toggling between list and grid view
     var isGridView by remember { mutableStateOf(false) }
+    var showRecycleBin by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Kosan Tel-U") },
+                actions = {
+                    IconButton(onClick = { isGridView = !isGridView }) {
+                        val icon = if (isGridView) {
+                            painterResource(id = R.drawable.baseline_grid_view_24)
+                        } else {
+                            painterResource(id = R.drawable.baseline_view_list_24)
+                        }
+                        Icon(painter = icon, contentDescription = "Toggle View")
+                    }
+
+                    IconButton(onClick = { showRecycleBin = !showRecycleBin }) {
+                        val icon = if (showRecycleBin) {
+                            painterResource(id = R.drawable.baseline_restore_from_trash_24)
+                        } else {
+                            painterResource(id = R.drawable.baseline_delete_24)
+                        }
+                        Icon(painter = icon, contentDescription = "Recycle Bin")
+                    }
+                },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.Red,
                     titleContentColor = Color.White
@@ -74,93 +94,89 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // Toggle Button to switch between List and Grid view
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                // List View button with an icon
-                Button(
-                    onClick = { isGridView = false },
-                    modifier = Modifier.padding(end = 8.dp)
-                ) {
-                    Icon(painter = painterResource(id = R.drawable.baseline_view_list_24), contentDescription = "List View")
-                    Text("List View")
-                }
-
-                // Grid View button with an icon
-                Button(
-                    onClick = { isGridView = true },
-                    modifier = Modifier.padding(start = 8.dp)
-                ) {
-                    Icon(painter = painterResource(id = R.drawable.baseline_grid_view_24), contentDescription = "Grid View")
-                    Text("Grid View")
-                }
-            }
-
-            // Display kosans in List or Grid based on the selected view
-            if (isGridView) {
-                // Grid View
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2), // Grid with 2 columns
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(kosans) { kosan ->
-                        KosanItem(
-                            kosan,
-                            onEditClick = { navController.navigate("editKosan/${kosan.id}") },
-                            onDeleteClick = {
-                                kosanToDelete = kosan
-                                showDialog = true
-                            }
-                        )
+            if (showRecycleBin) {
+                if (isGridView) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(deletedKosans) { recycleBin ->
+                            RecycleBinItem(
+                                recycleBin = recycleBin,
+                                onRestoreClick = { viewModel.restoreKosan(recycleBin) },
+                                onDeletePermanentlyClick = { kosanToDelete = recycleBin; showDialog = true }
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(modifier = Modifier.weight(1f)) {
+                        items(deletedKosans) { recycleBin ->
+                            RecycleBinItem(
+                                recycleBin = recycleBin,
+                                onRestoreClick = { viewModel.restoreKosan(recycleBin) },
+                                onDeletePermanentlyClick = { kosanToDelete = recycleBin; showDialog = true }
+                            )
+                        }
                     }
                 }
             } else {
-                // List View
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(kosans) { kosan ->
-                        KosanItem(
-                            kosan,
-                            onEditClick = { navController.navigate("editKosan/${kosan.id}") },
-                            onDeleteClick = {
-                                kosanToDelete = kosan
-                                showDialog = true
-                            }
-                        )
+                if (isGridView) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(kosans) { kosan ->
+                            KosanItem(
+                                kosan,
+                                onEditClick = {
+                                    if (kosan.id == 0L) {
+                                        Toast.makeText(navController.context, "Kosan tidak ditemukan", Toast.LENGTH_SHORT).show()
+                                        return@KosanItem
+                                    }
+                                    navController.navigate("editKosan/${kosan.id}")
+                                },
+                                onDeleteClick = {
+                                    kosanToDelete = kosan
+                                    showDialog = true
+                                }
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(modifier = Modifier.weight(1f)) {
+                        items(kosans) { kosan ->
+                            KosanItem(
+                                kosan,
+                                onEditClick = {
+                                    if (kosan.id == 0L) {
+                                        Toast.makeText(navController.context, "Kosan tidak ditemukan", Toast.LENGTH_SHORT).show()
+                                        return@KosanItem
+                                    }
+                                    navController.navigate("editKosan/${kosan.id}")
+                                },
+                                onDeleteClick = {
+                                    kosanToDelete = kosan
+                                    showDialog = true
+                                }
+                            )
+                        }
                     }
                 }
             }
 
-            // Display Deleted Kosans (Recycle Bin)
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(deletedKosans) { recycleBin ->
-                    RecycleBinItem(
-                        recycleBin = recycleBin,
-                        viewModel = viewModel,
-                        onRestoreClick = { viewModel.restoreKosan(recycleBin) },
-                        onDeletePermanentlyClick = { viewModel.permanentlyDeleteKosan(recycleBin) }
-                    )
-                }
-            }
-
-            // Dialog to confirm delete
             if (showDialog && kosanToDelete != null) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
                     title = { Text("Konfirmasi Hapus") },
                     text = { Text("Apakah Anda yakin ingin menghapus kosan ini?") },
                     confirmButton = {
-                        Button(
-                            onClick = {
-                                kosanToDelete?.let {
-                                    viewModel.delete(it) // Move to Recycle Bin and delete
-                                }
-                                showDialog = false
+                        Button(onClick = {
+                            when (val item = kosanToDelete) {
+                                is Kosan -> viewModel.delete(item)
+                                is RecycleBin -> viewModel.permanentlyDeleteKosan(item)
                             }
-                        ) {
+                            showDialog = false
+                        }) {
                             Text("Hapus")
                         }
                     },
@@ -176,35 +192,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
 }
 
 @Composable
-fun KosanItem(kosan: Kosan, onEditClick: () -> Unit, onDeleteClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { onEditClick() },
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Nama Kosan: ${kosan.nama}", color = Color.Black)
-            Text(text = "Alamat: ${kosan.alamat}", color = Color.Gray)
-            Text(text = "Harga: ${kosan.harga}", color = Color.Gray)
-            Text(text = "Fasilitas: ${kosan.fasilitas}", color = Color.Gray)
-
-            Button(onClick = onEditClick) {
-                Text("Edit")
-            }
-
-            Button(onClick = onDeleteClick) {
-                Text("Hapus")
-            }
-        }
-    }
-}
-
-@Composable
 fun RecycleBinItem(
     recycleBin: RecycleBin,
-    viewModel: MainViewModel,
     onRestoreClick: (RecycleBin) -> Unit,
     onDeletePermanentlyClick: (RecycleBin) -> Unit
 ) {
@@ -220,12 +209,53 @@ fun RecycleBinItem(
             Text(text = "Harga: ${recycleBin.harga}", color = Color.Gray)
             Text(text = "Fasilitas: ${recycleBin.fasilitas}", color = Color.Gray)
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { onRestoreClick(recycleBin) }) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { onRestoreClick(recycleBin) },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text("Pulihkan")
                 }
-                Button(onClick = { onDeletePermanentlyClick(recycleBin) }) {
+
+                Button(
+                    onClick = { onDeletePermanentlyClick(recycleBin) },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text("Hapus Permanen")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun KosanItem(kosan: Kosan, onEditClick: () -> Unit, onDeleteClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onEditClick() },  // Klik untuk edit
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "Nama Kosan: ${kosan.nama}", color = Color.Black)
+            Text(text = "Alamat: ${kosan.alamat}", color = Color.Gray)
+            Text(text = "Harga: ${kosan.harga}", color = Color.Gray)
+            Text(text = "Fasilitas: ${kosan.fasilitas}", color = Color.Gray)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(onClick = onEditClick, modifier = Modifier.weight(1f)) {
+                    Text("Edit")
+                }
+
+                Button(onClick = onDeleteClick, modifier = Modifier.weight(1f)) {
+                    Text("Hapus")
                 }
             }
         }
