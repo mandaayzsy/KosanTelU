@@ -10,6 +10,10 @@ class KosanRepository(private val kosanDao: KosanDao, private val recycleBinDao:
 
     val allKosans: Flow<List<Kosan>> = kosanDao.getAllKosans()
 
+    fun getKosanById(id: Long): Flow<Kosan?> {
+        return kosanDao.getKosanById(id)
+    }
+
     suspend fun insert(kosan: Kosan) {
         withContext(Dispatchers.IO) {
             kosanDao.insert(kosan)
@@ -58,9 +62,5 @@ class KosanRepository(private val kosanDao: KosanDao, private val recycleBinDao:
 
     fun getAllDeletedKosans(): Flow<List<RecycleBin>> {
         return recycleBinDao.getAllDeletedKosans()
-    }
-
-    fun getKosanById(id: Long): Flow<Kosan> {
-        return kosanDao.getKosanById(id)
     }
 }

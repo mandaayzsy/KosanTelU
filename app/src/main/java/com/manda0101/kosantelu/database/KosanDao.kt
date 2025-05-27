@@ -16,7 +16,7 @@ interface KosanDao {
     suspend fun delete(kosan: Kosan)
 
     @Query("SELECT * FROM kosan_table WHERE id = :id LIMIT 1")
-    fun getKosanById(id: Long): Flow<Kosan>
+    fun getKosanById(id: Long): Flow<Kosan?>
 
     @Update
     suspend fun update(kosan: Kosan)

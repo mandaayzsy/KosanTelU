@@ -1,10 +1,12 @@
 package com.manda0101.kosantelu.navigation
 
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+
 import com.manda0101.kosantelu.ui.screen.AddKosanScreen
 import com.manda0101.kosantelu.ui.screen.EditKosanScreen
 import com.manda0101.kosantelu.ui.screen.MainScreen
@@ -20,13 +22,11 @@ fun SetupNavGraph(navController: NavHostController, viewModel: MainViewModel) {
         composable(Screen.AddKosan.route) {
             AddKosanScreen(viewModel = viewModel, navController = navController)
         }
-
-        composable(Screen.EditKosan.route) { backStackEntry ->
-            val kosanId = backStackEntry.arguments?.getLong(KEY_ID_KOSAN) ?: 0
-            if (kosanId == 0L) {
-                Toast.makeText(navController.context, "Kosan tidak ditemukan", Toast.LENGTH_SHORT).show()
-                return@composable
-            }
+        composable(
+            route = Screen.EditKosan.route, // Route akan menjadi "editKosan/{kosanId}"
+            arguments = listOf(navArgument(KEY_ID_KOSAN) { type = NavType.LongType })
+        ) { backStackEntry ->
+            val kosanId = backStackEntry.arguments?.getLong(KEY_ID_KOSAN) ?: 0L
             EditKosanScreen(kosanId = kosanId, viewModel = viewModel, navController = navController)
         }
     }

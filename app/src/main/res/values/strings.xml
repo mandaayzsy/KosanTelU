@@ -13,4 +13,8 @@
     <string name="edit_kosan">Ubah Kosan</string>
     <string name="konfirmasi_hapus">Apakah Anda yakin ingin menghapus kosan ini?</string>
     <string name="undo_hapus">Kosan berhasil dihapus. Anda dapat membatalkan penghapusan.</string>
+    <string name="toggle_view">Toggle View (List/Grid)</string>
+    <string name="recycle_bin_toggle">Toggle Recycle Bin</string>
+    <string name="grid">Grid View</string>
+    <string name="list">List View</string>
 </resources>

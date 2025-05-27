@@ -57,7 +57,7 @@ fun AddKosanScreen(viewModel: MainViewModel, navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp), // Padding di sekeliling
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {

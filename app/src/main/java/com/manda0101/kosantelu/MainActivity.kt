@@ -7,26 +7,41 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.manda0101.kosantelu.database.KosanDatabase
 import com.manda0101.kosantelu.database.KosanRepository
-import com.manda0101.kosantelu.datapreferences.getThemePreference
 import com.manda0101.kosantelu.navigation.SetupNavGraph
 import com.manda0101.kosantelu.ui.theme.KosanTelUTheme
 import com.manda0101.kosantelu.ui.screen.MainViewModel
-import com.manda0101.kosantelu.ui.viewmodel.MainViewModelFactory
+import com.manda0101.kosantelu.ui.screen.MainViewModelFactory
+import android.util.Log
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.LaunchedEffect
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("KosanTeluPrefs", "MainActivity: onCreate called.")
 
         setContent {
-            val darkTheme = getThemePreference()
-            KosanTelUTheme(darkTheme = darkTheme) {
+            Log.d("KosanTeluPrefs", "MainActivity: setContent called.")
 
-                val kosanDatabase = KosanDatabase.getInstance(applicationContext)
-                val kosanDao = kosanDatabase.kosanDao()
-                val recycleBinDao = kosanDatabase.recycleBinDao()
-                val repository = KosanRepository(kosanDao, recycleBinDao)
-                val viewModelFactory = MainViewModelFactory(repository)
-                val viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+            val context = LocalContext.current
+
+            val kosanDatabase = KosanDatabase.getInstance(applicationContext)
+            val kosanDao = kosanDatabase.kosanDao()
+            val recycleBinDao = kosanDatabase.recycleBinDao()
+            val repository = remember { KosanRepository(kosanDao, recycleBinDao) }
+            val viewModelFactory = remember { MainViewModelFactory(repository) }
+
+            val viewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
+
+            LaunchedEffect(viewModel) {
+                Log.d("KosanTeluPrefs", "MainActivity: LaunchedEffect for ViewModel initialization.")
+                viewModel.initializeThemePreferencesManager(context.applicationContext)
+            }
+
+            val darkTheme = false
+
+            KosanTelUTheme(darkTheme = darkTheme) {
                 val navController = rememberNavController()
                 SetupNavGraph(navController = navController, viewModel = viewModel)
             }

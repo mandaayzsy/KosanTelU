@@ -1,5 +1,6 @@
 package com.manda0101.kosantelu.ui.screen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,15 +33,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.manda0101.kosantelu.R
 import com.manda0101.kosantelu.model.Kosan
 import com.manda0101.kosantelu.model.RecycleBin
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,21 +56,32 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
     var showDialog by remember { mutableStateOf(false) }
     var kosanToDelete by remember { mutableStateOf<Any?>(null) }
 
-    var isGridView by remember { mutableStateOf(false) }
+    val isGridView by viewModel.currentLayoutPreference.collectAsState(initial = false)
     var showRecycleBin by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    Log.d("KosanTeluUI", "MainScreen recomposed. isGridView = $isGridView, showRecycleBin = $showRecycleBin")
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Kosan Tel-U") },
                 actions = {
-                    IconButton(onClick = { isGridView = !isGridView }) {
-                        val icon = if (isGridView) {
-                            painterResource(id = R.drawable.baseline_grid_view_24)
-                        } else {
-                            painterResource(id = R.drawable.baseline_view_list_24)
+                    IconButton(onClick = {
+                        val newIsGridView = !isGridView
+                        scope.launch {
+                            viewModel.saveLayoutPreference(newIsGridView)
+                            Log.d("KosanTeluUI", "MainScreen: Toggling view to isGridView=$newIsGridView")
                         }
-                        Icon(painter = icon, contentDescription = "Toggle View")
+                    }) {
+                        val icon = if (isGridView) {
+                            painterResource(id = R.drawable.baseline_view_list_24)
+                        } else {
+                            painterResource(id = R.drawable.baseline_grid_view_24)
+                        }
+                        Icon(painter = icon, contentDescription = stringResource(R.string.toggle_view))
                     }
 
                     IconButton(onClick = { showRecycleBin = !showRecycleBin }) {
@@ -74,12 +90,14 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                         } else {
                             painterResource(id = R.drawable.baseline_delete_24)
                         }
-                        Icon(painter = icon, contentDescription = "Recycle Bin")
+                        Icon(painter = icon, contentDescription = stringResource(R.string.recycle_bin_toggle))
                     }
                 },
+
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.Red,
-                    titleContentColor = Color.White
+                    titleContentColor = Color.White,
+                    actionIconContentColor = Color.White
                 )
             )
         },
@@ -95,10 +113,14 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                 .fillMaxSize()
         ) {
             if (showRecycleBin) {
+                Log.d("KosanTeluUI", "MainScreen: Displaying Recycle Bin.")
                 if (isGridView) {
+                    Log.d("KosanTeluUI", "MainScreen: Recycle Bin Grid View.")
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(deletedKosans) { recycleBin ->
                             RecycleBinItem(
@@ -109,7 +131,10 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                         }
                     }
                 } else {
-                    LazyColumn(modifier = Modifier.weight(1f)) {
+                    Log.d("KosanTeluUI", "MainScreen: Recycle Bin List View.")
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
                         items(deletedKosans) { recycleBin ->
                             RecycleBinItem(
                                 recycleBin = recycleBin,
@@ -120,17 +145,21 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                     }
                 }
             } else {
+                Log.d("KosanTeluUI", "MainScreen: Displaying Main Kosan List/Grid.")
                 if (isGridView) {
+                    Log.d("KosanTeluUI", "MainScreen: Main Kosan Grid View.")
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(kosans) { kosan ->
                             KosanItem(
                                 kosan,
                                 onEditClick = {
                                     if (kosan.id == 0L) {
-                                        Toast.makeText(navController.context, "Kosan tidak ditemukan", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "ID Kosan tidak valid.", Toast.LENGTH_SHORT).show()
                                         return@KosanItem
                                     }
                                     navController.navigate("editKosan/${kosan.id}")
@@ -143,13 +172,16 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                         }
                     }
                 } else {
-                    LazyColumn(modifier = Modifier.weight(1f)) {
+                    Log.d("KosanTeluUI", "MainScreen: Main Kosan List View.")
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
                         items(kosans) { kosan ->
                             KosanItem(
                                 kosan,
                                 onEditClick = {
                                     if (kosan.id == 0L) {
-                                        Toast.makeText(navController.context, "Kosan tidak ditemukan", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "ID Kosan tidak valid.", Toast.LENGTH_SHORT).show()
                                         return@KosanItem
                                     }
                                     navController.navigate("editKosan/${kosan.id}")
@@ -200,7 +232,7 @@ fun RecycleBinItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -236,8 +268,8 @@ fun KosanItem(kosan: Kosan, onEditClick: () -> Unit, onDeleteClick: () -> Unit) 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { onEditClick() },  // Klik untuk edit
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clickable { onEditClick() },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

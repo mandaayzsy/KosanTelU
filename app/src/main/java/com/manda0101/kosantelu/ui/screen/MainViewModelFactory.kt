@@ -1,9 +1,8 @@
-package com.manda0101.kosantelu.ui.viewmodel
+package com.manda0101.kosantelu.ui.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.manda0101.kosantelu.database.KosanRepository
-import com.manda0101.kosantelu.ui.screen.MainViewModel
 
 @Suppress("UNCHECKED_CAST")
 class MainViewModelFactory(private val repository: KosanRepository) : ViewModelProvider.Factory {

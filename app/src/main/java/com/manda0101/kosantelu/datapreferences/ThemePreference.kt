@@ -1,31 +1,32 @@
 package com.manda0101.kosantelu.datapreferences
 
 import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import android.util.Log
 
-val Context.dataStore by preferencesDataStore(name = "settings")
-val THEME_KEY = stringPreferencesKey("theme")
+val Context.layoutPreferenceDataStore: DataStore<Preferences> by preferencesDataStore(name = "kosantelu_layout_prefs")
+private val IS_LINEAR_LAYOUT_KEY = booleanPreferencesKey("is_linear_layout")
 
-@Composable
-fun getThemePreference(): Boolean {
-    val context = LocalContext.current
-    var darkTheme by remember { mutableStateOf(false) }
+class ThemePreferencesManager(private val context: Context) {
 
-    LaunchedEffect(Unit) {
-        val preferences = context.dataStore.data.first()
-        val theme = preferences[THEME_KEY] ?: "light"
-        darkTheme = theme == "dark"
+    val layoutPreferenceFlow: Flow<Boolean> = context.layoutPreferenceDataStore.data
+        .map { preferences ->
+
+            val isLinearLayout = preferences[IS_LINEAR_LAYOUT_KEY] ?: true
+            Log.d("KosanTeluPrefs", "ThemePreferencesManager: Reading preference: $isLinearLayout")
+            isLinearLayout
+        }
+
+    suspend fun saveLayoutPreference(isLinearLayout: Boolean) {
+        context.layoutPreferenceDataStore.edit { preferences ->
+            preferences[IS_LINEAR_LAYOUT_KEY] = isLinearLayout
+            Log.d("KosanTeluPrefs", "ThemePreferencesManager: Saving preference: $isLinearLayout")
+        }
     }
-
-    return darkTheme
 }
-
