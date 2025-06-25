@@ -6,15 +6,27 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-
-import com.manda0101.kosantelu.ui.screen.AddKosanScreen
-import com.manda0101.kosantelu.ui.screen.EditKosanScreen
-import com.manda0101.kosantelu.ui.screen.MainScreen
-import com.manda0101.kosantelu.ui.screen.MainViewModel
+import com.manda0101.kosantelu.ui.screen.*
+import com.manda0101.kosantelu.ui.screen.LoginViewModel
 
 @Composable
-fun SetupNavGraph(navController: NavHostController, viewModel: MainViewModel) {
-    NavHost(navController = navController, startDestination = Screen.Home.route) {
+fun SetupNavGraph(
+    navController: NavHostController,
+    viewModel: MainViewModel,
+    loginViewModel: LoginViewModel
+) {
+    NavHost(navController = navController, startDestination = Screen.Login.route) {
+        composable(Screen.Login.route) {
+            LoginScreen(
+                viewModel = loginViewModel,
+                onLoginSuccess = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(Screen.Home.route) {
             MainScreen(navController = navController, viewModel = viewModel)
         }
@@ -22,8 +34,9 @@ fun SetupNavGraph(navController: NavHostController, viewModel: MainViewModel) {
         composable(Screen.AddKosan.route) {
             AddKosanScreen(viewModel = viewModel, navController = navController)
         }
+
         composable(
-            route = Screen.EditKosan.route, // Route akan menjadi "editKosan/{kosanId}"
+            route = Screen.EditKosan.route,
             arguments = listOf(navArgument(KEY_ID_KOSAN) { type = NavType.LongType })
         ) { backStackEntry ->
             val kosanId = backStackEntry.arguments?.getLong(KEY_ID_KOSAN) ?: 0L

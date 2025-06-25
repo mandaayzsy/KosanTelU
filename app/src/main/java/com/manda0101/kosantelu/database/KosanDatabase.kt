@@ -8,12 +8,15 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.manda0101.kosantelu.model.Kosan
 import com.manda0101.kosantelu.model.RecycleBin
+import com.manda0101.kosantelu.model.User
 
-@Database(entities = [Kosan::class, RecycleBin::class], version = 2, exportSchema = false)
+@Database(entities = [Kosan::class, RecycleBin::class, User::class], version = 3, exportSchema = false)
 abstract class KosanDatabase : RoomDatabase() {
 
     abstract fun kosanDao(): KosanDao
     abstract fun recycleBinDao(): RecycleBinDao
+    abstract fun userDao(): UserDao
+
 
     companion object {
 
@@ -48,5 +51,20 @@ abstract class KosanDatabase : RoomDatabase() {
         """)
             }
         }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+            CREATE TABLE IF NOT EXISTS `user_table` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `name` TEXT NOT NULL,
+                `email` TEXT NOT NULL,
+                `phone` TEXT NOT NULL,
+                `password` TEXT NOT NULL
+            )
+        """)
+            }
+        }
+
     }
 }

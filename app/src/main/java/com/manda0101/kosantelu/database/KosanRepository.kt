@@ -63,4 +63,5 @@ class KosanRepository(private val kosanDao: KosanDao, private val recycleBinDao:
     fun getAllDeletedKosans(): Flow<List<RecycleBin>> {
         return recycleBinDao.getAllDeletedKosans()
     }
+
 }

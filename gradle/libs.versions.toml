@@ -16,6 +16,7 @@ roomRuntime = "2.6.1"
 datastorePreferences = "1.1.4"
 appcompat = "1.7.1"
 
+
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
