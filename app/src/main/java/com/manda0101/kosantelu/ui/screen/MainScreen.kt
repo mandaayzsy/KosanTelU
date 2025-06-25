@@ -3,12 +3,7 @@ package com.manda0101.kosantelu.ui.screen
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,25 +11,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -93,19 +71,22 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                         Icon(painter = icon, contentDescription = stringResource(R.string.recycle_bin_toggle))
                     }
                 },
-
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = Color.Red,
+                    containerColor = Color(0xFF34AAFF),
                     titleContentColor = Color.White,
                     actionIconContentColor = Color.White
                 )
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("addKosan") }) {
+            FloatingActionButton(
+                onClick = { navController.navigate("addKosan") },
+                containerColor = Color(0xFFC1E1FF)  // Warna biru muda pada icon edit
+            ) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Tambah Kosan")
             }
         }
+
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -113,9 +94,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                 .fillMaxSize()
         ) {
             if (showRecycleBin) {
-                Log.d("KosanTeluUI", "MainScreen: Displaying Recycle Bin.")
                 if (isGridView) {
-                    Log.d("KosanTeluUI", "MainScreen: Recycle Bin Grid View.")
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier.fillMaxSize(),
@@ -126,28 +105,29 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                             RecycleBinItem(
                                 recycleBin = recycleBin,
                                 onRestoreClick = { viewModel.restoreKosan(recycleBin) },
-                                onDeletePermanentlyClick = { kosanToDelete = recycleBin; showDialog = true }
+                                onDeletePermanentlyClick = {
+                                    kosanToDelete = recycleBin
+                                    showDialog = true
+                                }
                             )
                         }
                     }
                 } else {
-                    Log.d("KosanTeluUI", "MainScreen: Recycle Bin List View.")
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(deletedKosans) { recycleBin ->
                             RecycleBinItem(
                                 recycleBin = recycleBin,
                                 onRestoreClick = { viewModel.restoreKosan(recycleBin) },
-                                onDeletePermanentlyClick = { kosanToDelete = recycleBin; showDialog = true }
+                                onDeletePermanentlyClick = {
+                                    kosanToDelete = recycleBin
+                                    showDialog = true
+                                }
                             )
                         }
                     }
                 }
             } else {
-                Log.d("KosanTeluUI", "MainScreen: Displaying Main Kosan List/Grid.")
                 if (isGridView) {
-                    Log.d("KosanTeluUI", "MainScreen: Main Kosan Grid View.")
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier.fillMaxSize(),
@@ -172,10 +152,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                         }
                     }
                 } else {
-                    Log.d("KosanTeluUI", "MainScreen: Main Kosan List View.")
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(kosans) { kosan ->
                             KosanItem(
                                 kosan,
@@ -202,18 +179,24 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                     title = { Text("Konfirmasi Hapus") },
                     text = { Text("Apakah Anda yakin ingin menghapus kosan ini?") },
                     confirmButton = {
-                        Button(onClick = {
-                            when (val item = kosanToDelete) {
-                                is Kosan -> viewModel.delete(item)
-                                is RecycleBin -> viewModel.permanentlyDeleteKosan(item)
-                            }
-                            showDialog = false
-                        }) {
+                        Button(
+                            onClick = {
+                                when (val item = kosanToDelete) {
+                                    is Kosan -> viewModel.delete(item)
+                                    is RecycleBin -> viewModel.permanentlyDeleteKosan(item)
+                                }
+                                showDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF11649D))
+                        ) {
                             Text("Hapus")
                         }
                     },
                     dismissButton = {
-                        Button(onClick = { showDialog = false }) {
+                        Button(
+                            onClick = { showDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF11649D))
+                        ) {
                             Text("Batal")
                         }
                     }
@@ -247,14 +230,16 @@ fun RecycleBinItem(
             ) {
                 Button(
                     onClick = { onRestoreClick(recycleBin) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF11649D))
                 ) {
                     Text("Pulihkan")
                 }
 
                 Button(
                     onClick = { onDeletePermanentlyClick(recycleBin) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF11649D))
                 ) {
                     Text("Hapus Permanen")
                 }
@@ -282,11 +267,19 @@ fun KosanItem(kosan: Kosan, onEditClick: () -> Unit, onDeleteClick: () -> Unit) 
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(onClick = onEditClick, modifier = Modifier.weight(1f)) {
+                Button(
+                    onClick = onEditClick,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF11649D))
+                ) {
                     Text("Edit")
                 }
 
-                Button(onClick = onDeleteClick, modifier = Modifier.weight(1f)) {
+                Button(
+                    onClick = onDeleteClick,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF11649D))
+                ) {
                     Text("Hapus")
                 }
             }

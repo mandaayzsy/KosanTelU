@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.KosanTelU" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Ganti warna ungu dengan biru -->
+        <item name="colorPrimary">#34AAFF</item> <!-- Biru cerah -->
+        <item name="colorPrimaryVariant">#11649D</item> <!-- Biru gelap -->
+        <item name="colorOnPrimary">#FFFFFF</item>
 
-    <style name="Theme.KosanTelU" parent="android:Theme.Material.Light.NoActionBar" />
+        <item name="colorSecondary">#03DAC5</item>
+        <item name="colorSecondaryVariant">#018786</item>
+        <item name="colorOnSecondary">#000000</item>
+
+        <!-- Status bar juga disesuaikan -->
+        <item name="android:statusBarColor">#11649D</item>
+    </style>
 </resources>

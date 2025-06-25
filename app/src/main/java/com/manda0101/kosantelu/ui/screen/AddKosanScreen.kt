@@ -42,12 +42,15 @@ fun AddKosanScreen(viewModel: MainViewModel, navController: NavController) {
             TopAppBar(
                 title = { Text("Kosan Tel-U") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {  // Tombol Kembali
-                        Icon(painter = painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = "Kembali")
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_arrow_back_24),
+                            contentDescription = "Kembali"
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = Color.Red,
+                    containerColor = Color(0xFF34AAFF),
                     titleContentColor = Color.White
                 )
             )
@@ -92,7 +95,6 @@ fun AddKosanScreen(viewModel: MainViewModel, navController: NavController) {
 
                 Button(
                     onClick = {
-
                         if (kosanName.value.isBlank() || kosanAlamat.value.isBlank() || kosanHarga.value.isBlank()) {
                             Toast.makeText(navController.context, "Semua kolom harus diisi", Toast.LENGTH_SHORT).show()
                             return@Button
@@ -110,9 +112,12 @@ fun AddKosanScreen(viewModel: MainViewModel, navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth(0.6f)
                         .align(Alignment.CenterHorizontally),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8A2BE2))
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF11649D),
+                        contentColor = Color.White
+                    )
                 ) {
-                    Text("Simpan Kosan", color = Color.White)
+                    Text("Simpan Kosan")
                 }
             }
         }

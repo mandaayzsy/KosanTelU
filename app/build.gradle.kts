@@ -54,8 +54,12 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.appcompat)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
+    implementation (libs.material)
+    implementation(libs.accompanist.systemuicontroller)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
